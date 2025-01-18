@@ -18,7 +18,7 @@ Ball App #Game Instructions
 16. Visual:  the stored configuration is reestablished but with black background (so the tow exchanged ball have the right order again).; Text: shake it again
 17. Visual:  aligned the balls in a circle fitting the screen - but wildly mixed. Text: blow a bit
 18. Visual:  all balls slight move to the top of the screen and losing their order. Like you would blow leaves and then they distribute randomly also the black background fades away in th direction opposite of the blow. Text: blow a bit stronger
-19. Visual:  balls are almost gone (maybe half of them are out of sight already, since the person blowed to hard ;). Text: hold the phone upright so the balls can sink again
+19. Visual:  balls are almost gone. maybe half of them are out of sight already. but we still see some parts of the balls. at least of some. since the person blowed to hard ;). Text: hold the phone upright so the balls can sink again
 20. Visual:  balls are randomly distributed on the screen; Text: clap in your hands
 21. Visual:  balls become bigger; Text: clap twice
 22. Visual:  balls become even bigger and overlap; Text: clap three times
