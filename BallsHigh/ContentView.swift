@@ -68,7 +68,7 @@ struct ContentView: View {
         case 12:
             return "Shake the phone to distribute them again"
         case 13:
-            return "Press on all yellow balls"
+            return "Press on all yellow balls and remember the order - you might need it"
         case 14:
             return "Funny, turn it on the lights again and by pressing on all yellow balls again"
         case 15:
@@ -84,20 +84,18 @@ struct ContentView: View {
         case 20:
             return "Clap in your hands"
         case 21:
-            return "Blow a bit"
-        case 22:
             return "Clap twice"
-        case 23:
+        case 22:
             return "Clap three times"
-        case 24:
+        case 23:
             return "Clap again"
-        case 25:
+        case 24:
             return "Applause"
-        case 26:
+        case 25:
             return "More applause"
-        case 27:
+        case 26:
             return "Oh no. Too much. Press the white ball"
-        case 28:
+        case 27:
             return "Congratulations! Press the yellow ball to start over"
         default:
             return ""

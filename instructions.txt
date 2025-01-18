@@ -1,0 +1,29 @@
+Ball App #Game Instructions 
+
+1. Visual: one yellow ball. Text: Press the yellow ball. 
+2. Visual: two yellow balls. Text: Press the yellow ball again.
+3. Visual: three yellow balls. Text: gently rub your finger over the yellow ball.
+4. Visual: two yellow balls, one red. (The one that got rubbed in the last scene is now red) Text: now gently rub your finger over another yellow ball.
+5. Visual: one yellow balls, one red, one blue one. (The one that got rubbed in the last scene is now blue) Text: now press 5 times the yellow ball
+6. Visual: five yellow balls vertically aligned, one red, one blue one. (The yellow one that got pressed in the last scene turns into the 5 yellow ones) Text: now press 5 times the red ball
+7. Visual: five yellow balls vertically aligned, five red balls vertically aligned, one blue one. (The red one that got pressed in the last scene turns into the 5 red ones) Text: now press 5 times the blue ball
+8. Visual: five yellow balls vertically aligned, five red balls vertically aligned, five blue one vertically aligned. (The blue one that got pressed in the last scene turns into the 5 blue ones) Text: now shake the phone a bit
+9. Visual: move all 15 balls a bit around, not too much, but slightly dealign them; Text: now shake it even more
+10. Visual: distribute all 15 balls wildly on the page; Text: try to tilt the phone to the left side
+11. Visual:  all 15 balls move to the left side; Text: try to tilt the phone to the right side
+12. Visual:  all 15 balls move to the right side; Text: shake the phone to distribute them again
+13. Visual:  all 15 balls are aligned in a grid but not sorted in color.; Text: press on all yellow balls and remember the order - you might need it
+14. Visual:  the yellow balls stay. all other balls disappear and the background turns black; new Text: Funny, turn it on the lights again and by pressing on all yellow balls again.
+15. Visual:  like in scene 13 (so you have to store the state and look of scene 13 to restore it here completely) but change two balls of different color (basically their places); Text: two balls are not in the right position. Do you know which? Logic: the person needs to click the ones that changed before continuing.
+16. Visual:  the stored configuration is reestablished but with black background (so the tow exchanged ball have the right order again).; Text: shake it again
+17. Visual:  aligned the balls in a circle fitting the screen - but wildly mixed. Text: blow a bit
+18. Visual:  all balls slight move to the top of the screen and losing their order. Like you would blow leaves and then they distribute randomly also the black background fades away in th direction opposite of the blow. Text: blow a bit stronger
+19. Visual:  balls are almost gone (maybe half of them are out of sight already, since the person blowed to hard ;). Text: hold the phone upright so the balls can sink again
+20. Visual:  balls are randomly distributed on the screen; Text: clap in your hands
+21. Visual:  balls become bigger; Text: clap twice
+22. Visual:  balls become even bigger and overlap; Text: clap three times
+23. Visual:  balls become even bigger and overlap more and move partially out of the screen; Text: clap again
+24. Visual:  balls are huge now! Text: applause
+25. Visual:  balls are super huge now and almost only a yellow one is visible with a small inner white ball! Text: more applause 
+26. Visual:  all yellow, except a white ball in the middle; Text: oh no. too much. Press the white ball
+27. Start over with scene one but also present a small congratulation text
