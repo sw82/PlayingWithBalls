@@ -110,6 +110,28 @@ struct ContentView: View {
                 backgroundColor.ignoresSafeArea()
                 
                 VStack {
+                    #if DEBUG
+                    // Debug Scene Selector
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(1...27, id: \.self) { sceneNumber in
+                                Button(action: {
+                                    setupScene(sceneNumber)
+                                }) {
+                                    Text("\(sceneNumber)")
+                                        .padding(8)
+                                        .background(scene == sceneNumber ? Color.blue : Color.gray)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(8)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    .frame(height: 50)
+                    .background(Color.black.opacity(0.1))
+                    #endif
+                    
                     Text(instructionText)
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(backgroundColor == .black ? .white : .black)
@@ -168,15 +190,6 @@ struct ContentView: View {
                             handleDeviceOrientation()
                         }) {
                             Text("Hold Upright")
-                                .padding(8)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                        }
-                        Button(action: {
-                            handleClap()
-                        }) {
-                            Text("Clap")
                                 .padding(8)
                                 .background(Color.blue)
                                 .foregroundColor(.white)
@@ -557,24 +570,41 @@ struct ContentView: View {
     
     private func handleClap() {
         switch scene {
-        case 20: // Single clap
+        case 20: // First clap - just make balls bigger
             withAnimation(.spring()) {
-                arrangeInCircle()
+                for i in 0..<balls.count {
+                    balls[i].scale *= 1.5  // Just increase size
+                }
                 scene = 21
             }
             
-        case 22: // Double clap
+        case 21: // Double clap - bigger + overlap
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale *= 1.5
+                    balls[i].scale *= 2.0
+                    // Add slight overlap effect
+                    let randomOffset = CGPoint(
+                        x: CGFloat.random(in: -30...30),
+                        y: CGFloat.random(in: -30...30)
+                    )
+                    balls[i].position.x += randomOffset.x
+                    balls[i].position.y += randomOffset.y
+                }
+                scene = 22
+            }
+            
+        case 22: // Triple clap
+            withAnimation(.spring()) {
+                for i in 0..<balls.count {
+                    balls[i].scale *= 2.0
                 }
                 scene = 23
             }
             
-        case 23: // Triple clap
+        case 23: // Single clap again
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale *= 2.0
+                    balls[i].scale *= 2.5
                 }
                 scene = 24
             }
