@@ -84,20 +84,18 @@ struct ContentView: View {
         case 20:
             return "Clap in your hands"
         case 21:
-            return "Blow a bit"
-        case 22:
             return "Clap twice"
-        case 23:
+        case 22:
             return "Clap three times"
-        case 24:
+        case 23:
             return "Clap again"
-        case 25:
+        case 24:
             return "Applause"
-        case 26:
+        case 25:
             return "More applause"
-        case 27:
+        case 26:
             return "Oh no. Too much. Press the white ball"
-        case 28:
+        case 27:
             return "Congratulations! Press the yellow ball to start over"
         default:
             return ""
@@ -110,6 +108,28 @@ struct ContentView: View {
                 backgroundColor.ignoresSafeArea()
                 
                 VStack {
+                    #if DEBUG
+                    // Debug Scene Selector
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(1...27, id: \.self) { sceneNumber in
+                                Button(action: {
+                                    setupScene(sceneNumber)
+                                }) {
+                                    Text("\(sceneNumber)")
+                                        .padding(8)
+                                        .background(scene == sceneNumber ? Color.blue : Color.gray)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(8)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    .frame(height: 50)
+                    .background(Color.black.opacity(0.1))
+                    #endif
+                    
                     Text(instructionText)
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(backgroundColor == .black ? .white : .black)
@@ -168,15 +188,6 @@ struct ContentView: View {
                             handleDeviceOrientation()
                         }) {
                             Text("Hold Upright")
-                                .padding(8)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                        }
-                        Button(action: {
-                            handleClap()
-                        }) {
-                            Text("Clap")
                                 .padding(8)
                                 .background(Color.blue)
                                 .foregroundColor(.white)
@@ -557,46 +568,90 @@ struct ContentView: View {
     
     private func handleClap() {
         switch scene {
-        case 20: // Single clap
-            withAnimation(.spring()) {
-                arrangeInCircle()
-                scene = 21
-            }
-            
-        case 22: // Double clap
+        case 20: // Single clap - make balls bigger
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
                     balls[i].scale *= 1.5
                 }
-                scene = 23
+                scene = 21
             }
             
-        case 23: // Triple clap
+        case 21: // Double clap - even bigger + overlap
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
                     balls[i].scale *= 2.0
+                    // Add slight overlap effect
+                    let randomOffset = CGPoint(
+                        x: CGFloat.random(in: -30...30),
+                        y: CGFloat.random(in: -30...30)
+                    )
+                    balls[i].position.x += randomOffset.x
+                    balls[i].position.y += randomOffset.y
+                }
+                scene = 22
+            }
+            
+        case 22: // Triple clap - huge + more overlap + partial offscreen
+            withAnimation(.spring()) {
+                for i in 0..<balls.count {
+                    balls[i].scale *= 2.5
+                    // More dramatic overlap and some offscreen movement
+                    let randomOffset = CGPoint(
+                        x: CGFloat.random(in: -100...100),
+                        y: CGFloat.random(in: -100...100)
+                    )
+                    balls[i].position.x += randomOffset.x
+                    balls[i].position.y += randomOffset.y
+                }
+                scene = 23
+            }
+            
+        case 23: // Single clap again - massive
+            withAnimation(.spring()) {
+                for i in 0..<balls.count {
+                    balls[i].scale *= 3.0
+                    // Even more overlap
+                    let randomOffset = CGPoint(
+                        x: CGFloat.random(in: -150...150),
+                        y: CGFloat.random(in: -150...150)
+                    )
+                    balls[i].position.x += randomOffset.x
+                    balls[i].position.y += randomOffset.y
                 }
                 scene = 24
             }
             
-        case 24: // Single clap again
+        case 24: // Applause - super huge
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale *= 2.5
+                    balls[i].scale *= 4.0
+                    balls[i].color = .yellow // Start transitioning to all yellow
+                }
+                // Add one smaller white ball in the center
+                if let centerIndex = balls.indices.randomElement() {
+                    balls[centerIndex].color = .white
+                    balls[centerIndex].scale *= 0.3 // Make the white ball smaller
                 }
                 scene = 25
             }
             
-        case 25, 26: // Applause
+        case 25: // More applause - final form
             withAnimation(.spring()) {
+                // Make all balls yellow except one white in center
                 for i in 0..<balls.count {
-                    balls[i].scale *= 3.0
+                    balls[i].scale *= 5.0
+                    balls[i].color = .yellow
                 }
-                if scene == 25 {
-                    scene = 26
-                } else {
-                    createFinalScene()
+                // Ensure one white ball in the exact center
+                if let centerBall = balls.first {
+                    let screenCenter = CGPoint(
+                        x: UIScreen.main.bounds.width / 2,
+                        y: UIScreen.main.bounds.height / 2
+                    )
+                    let newBall = Ball(position: screenCenter, color: .white)
+                    balls.append(newBall)
                 }
+                scene = 26
             }
             
         default:
