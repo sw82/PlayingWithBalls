@@ -110,6 +110,28 @@ struct ContentView: View {
                 backgroundColor.ignoresSafeArea()
                 
                 VStack {
+                    #if DEBUG
+                    // Debug Scene Selector
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(1...27, id: \.self) { sceneNumber in
+                                Button(action: {
+                                    setupScene(sceneNumber)
+                                }) {
+                                    Text("\(sceneNumber)")
+                                        .padding(8)
+                                        .background(scene == sceneNumber ? Color.blue : Color.gray)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(8)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    .frame(height: 50)
+                    .background(Color.black.opacity(0.1))
+                    #endif
+                    
                     Text(instructionText)
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(backgroundColor == .black ? .white : .black)
@@ -125,7 +147,7 @@ struct ContentView: View {
                     Spacer()
                     
                     #if DEBUG
-                    // Debug controls with ALL buttons including clap
+                    // Debug controls for simulator
                     HStack {
                         Button(action: {
                             motionManager.simulateShake()
@@ -173,15 +195,6 @@ struct ContentView: View {
                                 .foregroundColor(.white)
                                 .cornerRadius(8)
                         }
-                        Button(action: {
-                            handleClap()
-                        }) {
-                            Text("Clap")
-                                .padding(8)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                        }
                     }
                     .padding(.bottom, 20)
                     #endif
@@ -189,7 +202,7 @@ struct ContentView: View {
                 
                 ForEach(balls) { ball in
                     BallView(
-                        ball: ball,
+                        ball: ball, 
                         scene: scene,
                         onTap: { handleTap(ballId: ball.id) },
                         onRub: { handleRub(ballId: ball.id) }
@@ -557,46 +570,81 @@ struct ContentView: View {
     
     private func handleClap() {
         switch scene {
-        case 20: // Single clap
+        case 20: // Single clap - make balls bigger
             withAnimation(.spring()) {
-                arrangeInCircle()
+                for i in 0..<balls.count {
+                    balls[i].scale *= 1.5  // Just increase size, keep current positions
+                }
                 scene = 21
             }
             
-        case 22: // Double clap
+        case 21: // Double clap - bigger + slight overlap
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale *= 1.5
+                    balls[i].scale *= 2.0
+                    // Add slight random movement for overlap effect
+                    let randomOffset = CGPoint(
+                        x: CGFloat.random(in: -30...30),
+                        y: CGFloat.random(in: -30...30)
+                    )
+                    balls[i].position.x += randomOffset.x
+                    balls[i].position.y += randomOffset.y
+                }
+                scene = 22
+            }
+            
+        case 22: // Triple clap - even bigger + more overlap
+            withAnimation(.spring()) {
+                for i in 0..<balls.count {
+                    balls[i].scale *= 2.5
+                    // More dramatic overlap
+                    let randomOffset = CGPoint(
+                        x: CGFloat.random(in: -50...50),
+                        y: CGFloat.random(in: -50...50)
+                    )
+                    balls[i].position.x += randomOffset.x
+                    balls[i].position.y += randomOffset.y
                 }
                 scene = 23
             }
             
-        case 23: // Triple clap
+        case 23: // Single clap again - huge
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale *= 2.0
+                    balls[i].scale *= 3.0
+                    // Even more overlap
+                    let randomOffset = CGPoint(
+                        x: CGFloat.random(in: -70...70),
+                        y: CGFloat.random(in: -70...70)
+                    )
+                    balls[i].position.x += randomOffset.x
+                    balls[i].position.y += randomOffset.y
                 }
                 scene = 24
             }
             
-        case 24: // Single clap again
+        case 24: // Applause - super huge
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale *= 2.5
+                    balls[i].scale *= 4.0
+                    balls[i].color = .yellow
                 }
                 scene = 25
             }
             
-        case 25, 26: // Applause
+        case 25: // More applause - final form
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale *= 3.0
+                    balls[i].scale *= 5.0
+                    balls[i].color = .yellow
                 }
-                if scene == 25 {
-                    scene = 26
-                } else {
-                    createFinalScene()
-                }
+                // Add one white ball in the center
+                let centerPosition = CGPoint(
+                    x: UIScreen.main.bounds.width/2,
+                    y: UIScreen.main.bounds.height/2
+                )
+                balls.append(Ball(position: centerPosition, color: .white, scale: 0.5))
+                scene = 26
             }
             
         default:
@@ -605,22 +653,28 @@ struct ContentView: View {
     }
     
     private func handleDeviceOrientation() {
-        if scene == 19 {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
-                // Let balls fall back randomly on screen with a more natural distribution
+        if scene == 19 && deviceOrientation == .portrait {
+            withAnimation(.spring(response: 0.8, dampingFraction: 0.6)) {
+                // Let balls sink down with gravity-like effect
                 for i in 0..<balls.count {
-                    let randomDelay = Double.random(in: 0...0.3)
+                    let randomDelay = Double.random(in: 0...0.5)
+                    let randomX = CGFloat.random(in: 50...(UIScreen.main.bounds.width - 50))
+                    
                     DispatchQueue.main.asyncAfter(deadline: .now() + randomDelay) {
-                        withAnimation(.spring()) {
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+                            // Start from current position and "sink" to random position
                             balls[i].position = CGPoint(
-                                x: CGFloat.random(in: 50...(UIScreen.main.bounds.width - 50)),
-                                y: CGFloat.random(in: UIScreen.main.bounds.height * 0.3...UIScreen.main.bounds.height * 0.8)
+                                x: randomX,
+                                y: CGFloat.random(in: UIScreen.main.bounds.height * 0.4...UIScreen.main.bounds.height * 0.8)
                             )
                         }
                     }
                 }
-                backgroundColor = .white // Reset background
-                scene = 20
+                
+                // Give time for balls to settle before moving to next scene
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    scene = 20
+                }
             }
         }
     }
