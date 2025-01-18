@@ -84,20 +84,18 @@ struct ContentView: View {
         case 20:
             return "Clap in your hands"
         case 21:
-            return "Blow a bit"
-        case 22:
             return "Clap twice"
-        case 23:
+        case 22:
             return "Clap three times"
-        case 24:
+        case 23:
             return "Clap again"
-        case 25:
+        case 24:
             return "Applause"
-        case 26:
+        case 25:
             return "More applause"
-        case 27:
+        case 26:
             return "Oh no. Too much. Press the white ball"
-        case 28:
+        case 27:
             return "Congratulations! Press the yellow ball to start over"
         default:
             return ""
@@ -110,6 +108,28 @@ struct ContentView: View {
                 backgroundColor.ignoresSafeArea()
                 
                 VStack {
+                    #if DEBUG
+                    // Debug Scene Selector
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(1...27, id: \.self) { sceneNumber in
+                                Button(action: {
+                                    setupScene(sceneNumber)
+                                }) {
+                                    Text("\(sceneNumber)")
+                                        .padding(8)
+                                        .background(scene == sceneNumber ? Color.blue : Color.gray)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(8)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    .frame(height: 50)
+                    .background(Color.black.opacity(0.1))
+                    #endif
+                    
                     Text(instructionText)
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(backgroundColor == .black ? .white : .black)
@@ -168,15 +188,6 @@ struct ContentView: View {
                             handleDeviceOrientation()
                         }) {
                             Text("Hold Upright")
-                                .padding(8)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                        }
-                        Button(action: {
-                            handleClap()
-                        }) {
-                            Text("Clap")
                                 .padding(8)
                                 .background(Color.blue)
                                 .foregroundColor(.white)
@@ -516,38 +527,32 @@ struct ContentView: View {
     
     private func handleBlow() {
         switch scene {
-        case 17: // First gentle blow - random distribution upward
+        case 17: // First gentle blow
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    // Random upward movement with some horizontal scatter
-                    let randomHorizontalOffset = CGFloat.random(in: -50...50)
-                    balls[i].position.y -= 50 // Move up
+                    let randomHorizontalOffset = CGFloat.random(in: -30...30)
+                    let randomVerticalOffset = CGFloat.random(in: 30...50)
+                    balls[i].position.y -= randomVerticalOffset
                     balls[i].position.x += randomHorizontalOffset
                 }
                 fadeBackground(amount: 0.3)
-                scene = 18
+                scene = 18  // Move to "Blow stronger"
             }
             
-        case 18: // Stronger blow - balls almost out of sight
+        case 18: // Stronger blow
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    // More dramatic upward movement with wider scatter
-                    let randomHorizontalOffset = CGFloat.random(in: -100...100)
-                    // Move most balls almost out of sight, with some variation
-                    let randomUpwardOffset = UIScreen.main.bounds.height * CGFloat.random(in: 0.6...0.9)
-                    balls[i].position.y -= randomUpwardOffset
+                    let randomHorizontalOffset = CGFloat.random(in: -50...50)
+                    let upwardOffset = UIScreen.main.bounds.height * 0.7
+                    balls[i].position.y -= upwardOffset
                     balls[i].position.x += randomHorizontalOffset
+                    
+                    if CGFloat.random(in: 0...1) > 0.5 {
+                        balls[i].position.y -= UIScreen.main.bounds.height
+                    }
                 }
-                fadeBackground(amount: 0.8)
-                scene = 19
-            }
-            
-        case 21: // Final blow
-            withAnimation(.spring()) {
-                for i in 0..<balls.count {
-                    balls[i].scale *= 1.2
-                }
-                scene = 22
+                fadeBackground(amount: 0.7)
+                scene = 19  // Move to "Hold upright"
             }
             
         default:
@@ -557,24 +562,34 @@ struct ContentView: View {
     
     private func handleClap() {
         switch scene {
-        case 20: // Single clap
-            withAnimation(.spring()) {
-                arrangeInCircle()
-                scene = 21
-            }
-            
-        case 22: // Double clap
+        case 20: // First clap
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
                     balls[i].scale *= 1.5
                 }
-                scene = 23
+                scene = 21  // Move to "Clap twice"
             }
             
-        case 23: // Triple clap
+        case 21: // Double clap
+            withAnimation(.spring()) {
+                for i in 0..<balls.count {
+                    balls[i].scale *= 1.5
+                }
+                scene = 22
+            }
+            
+        case 22: // Triple clap
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
                     balls[i].scale *= 2.0
+                }
+                scene = 23
+            }
+            
+        case 23: // Single clap again
+            withAnimation(.spring()) {
+                for i in 0..<balls.count {
+                    balls[i].scale *= 2.5
                 }
                 scene = 24
             }
