@@ -68,7 +68,7 @@ struct ContentView: View {
         case 12:
             return "Shake the phone to distribute them again"
         case 13:
-            return "Press on all yellow balls and remember the order - you might need it"
+            return "Press on all yellow balls"
         case 14:
             return "Funny, turn it on the lights again and by pressing on all yellow balls again"
         case 15:
@@ -84,18 +84,20 @@ struct ContentView: View {
         case 20:
             return "Clap in your hands"
         case 21:
-            return "Clap twice"
+            return "Blow a bit"
         case 22:
-            return "Clap three times"
+            return "Clap twice"
         case 23:
-            return "Clap again"
+            return "Clap three times"
         case 24:
-            return "Applause"
+            return "Clap again"
         case 25:
-            return "More applause"
+            return "Applause"
         case 26:
-            return "Oh no. Too much. Press the white ball"
+            return "More applause"
         case 27:
+            return "Oh no. Too much. Press the white ball"
+        case 28:
             return "Congratulations! Press the yellow ball to start over"
         default:
             return ""
@@ -108,28 +110,6 @@ struct ContentView: View {
                 backgroundColor.ignoresSafeArea()
                 
                 VStack {
-                    #if DEBUG
-                    // Debug Scene Selector
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(1...27, id: \.self) { sceneNumber in
-                                Button(action: {
-                                    setupScene(sceneNumber)
-                                }) {
-                                    Text("\(sceneNumber)")
-                                        .padding(8)
-                                        .background(scene == sceneNumber ? Color.blue : Color.gray)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(8)
-                                }
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
-                    .frame(height: 50)
-                    .background(Color.black.opacity(0.1))
-                    #endif
-                    
                     Text(instructionText)
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(backgroundColor == .black ? .white : .black)
@@ -188,6 +168,15 @@ struct ContentView: View {
                             handleDeviceOrientation()
                         }) {
                             Text("Hold Upright")
+                                .padding(8)
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
+                        Button(action: {
+                            handleClap()
+                        }) {
+                            Text("Clap")
                                 .padding(8)
                                 .background(Color.blue)
                                 .foregroundColor(.white)
