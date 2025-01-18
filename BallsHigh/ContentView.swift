@@ -110,28 +110,7 @@ struct ContentView: View {
                 backgroundColor.ignoresSafeArea()
                 
                 VStack {
-                    #if DEBUG
-                    // Debug Scene Selector
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(1...27, id: \.self) { sceneNumber in
-                                Button(action: {
-                                    setupScene(sceneNumber)
-                                }) {
-                                    Text("\(sceneNumber)")
-                                        .padding(8)
-                                        .background(scene == sceneNumber ? Color.blue : Color.gray)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(8)
-                                }
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
-                    .frame(height: 50)
-                    .background(Color.black.opacity(0.1))
-                    #endif
-                    
+                    // ONLY instruction text - NO scene selection!
                     Text(instructionText)
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(backgroundColor == .black ? .white : .black)
@@ -147,7 +126,7 @@ struct ContentView: View {
                     Spacer()
                     
                     #if DEBUG
-                    // Debug controls for simulator
+                    // ALL debug controls including clap
                     HStack {
                         Button(action: {
                             motionManager.simulateShake()
@@ -195,8 +174,16 @@ struct ContentView: View {
                                 .foregroundColor(.white)
                                 .cornerRadius(8)
                         }
+                        Button(action: {
+                            handleClap()
+                        }) {
+                            Text("Clap")
+                                .padding(8)
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
                     }
-                    .padding(.bottom, 20)
                     #endif
                 }
                 
