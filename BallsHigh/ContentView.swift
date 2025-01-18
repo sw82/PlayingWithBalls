@@ -557,10 +557,10 @@ struct ContentView: View {
     
     private func handleClap() {
         switch scene {
-        case 20: // Single clap - make balls bigger
+        case 20: // First clap - just make balls bigger
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale *= 1.5  // Just increase size, keep current positions
+                    balls[i].scale = balls[i].scale * 1.5  // Explicit multiplication
                 }
                 scene = 21
             }
@@ -568,7 +568,7 @@ struct ContentView: View {
         case 21: // Double clap - bigger + slight overlap
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale *= 2.0
+                    balls[i].scale = balls[i].scale * 2.0
                     // Add slight random movement for overlap effect
                     let randomOffset = CGPoint(
                         x: CGFloat.random(in: -30...30),
@@ -583,7 +583,7 @@ struct ContentView: View {
         case 22: // Triple clap - even bigger + more overlap
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale *= 2.5
+                    balls[i].scale = balls[i].scale * 2.5
                     // More dramatic overlap
                     let randomOffset = CGPoint(
                         x: CGFloat.random(in: -50...50),
@@ -598,7 +598,7 @@ struct ContentView: View {
         case 23: // Single clap again - huge
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale *= 3.0
+                    balls[i].scale = balls[i].scale * 3.0
                     // Even more overlap
                     let randomOffset = CGPoint(
                         x: CGFloat.random(in: -70...70),
@@ -613,7 +613,7 @@ struct ContentView: View {
         case 24: // Applause - super huge
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale *= 4.0
+                    balls[i].scale = balls[i].scale * 4.0
                     balls[i].color = .yellow
                 }
                 scene = 25
@@ -622,7 +622,7 @@ struct ContentView: View {
         case 25: // More applause - final form
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale *= 5.0
+                    balls[i].scale = balls[i].scale * 5.0
                     balls[i].color = .yellow
                 }
                 // Add one white ball in the center
