@@ -61,13 +61,14 @@ class MicrophoneMonitor: ObservableObject {
                 // Detect claps (sharp, loud sounds)
                 if level > -10 {  // Keep threshold but ensure it's a sharp sound
                     let currentTime = Date()
-                    if currentTime.timeIntervalSince(self.lastClapTime) > self.clapCooldown {
-                        self.lastClapTime = currentTime
-                        self.clapDetected = true
+                    if let strongSelf = self,
+                       currentTime.timeIntervalSince(strongSelf.lastClapTime) > strongSelf.clapCooldown {
+                        strongSelf.lastClapTime = currentTime
+                        strongSelf.clapDetected = true
                         
                         // Reset after a short delay
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            self.clapDetected = false
+                            strongSelf.clapDetected = false
                         }
                     }
                 }

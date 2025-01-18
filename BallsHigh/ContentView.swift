@@ -557,18 +557,18 @@ struct ContentView: View {
     
     private func handleClap() {
         switch scene {
-        case 20: // First clap - just make balls bigger
+        case 20: // First clap - just make them bigger
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale = balls[i].scale * 1.5  // Explicit multiplication
+                    balls[i].scale = 2.0  // Start with double size
                 }
                 scene = 21
             }
             
-        case 21: // Double clap - bigger + slight overlap
+        case 21: // Second clap - even bigger
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale = balls[i].scale * 2.0
+                    balls[i].scale = 4.0  // 4x original size
                     // Add slight random movement for overlap effect
                     let randomOffset = CGPoint(
                         x: CGFloat.random(in: -30...30),
@@ -580,10 +580,10 @@ struct ContentView: View {
                 scene = 22
             }
             
-        case 22: // Triple clap - even bigger + more overlap
+        case 22: // Third clap - much bigger
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale = balls[i].scale * 2.5
+                    balls[i].scale = 8.0  // 8x original size
                     // More dramatic overlap
                     let randomOffset = CGPoint(
                         x: CGFloat.random(in: -50...50),
@@ -595,10 +595,10 @@ struct ContentView: View {
                 scene = 23
             }
             
-        case 23: // Single clap again - huge
+        case 23: // Fourth clap - huge
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale = balls[i].scale * 3.0
+                    balls[i].scale = 16.0  // 16x original size
                     // Even more overlap
                     let randomOffset = CGPoint(
                         x: CGFloat.random(in: -70...70),
@@ -610,27 +610,18 @@ struct ContentView: View {
                 scene = 24
             }
             
-        case 24: // Applause - super huge
+        case 24: // Applause - massive
             withAnimation(.spring()) {
                 for i in 0..<balls.count {
-                    balls[i].scale = balls[i].scale * 4.0
-                    balls[i].color = .yellow
+                    balls[i].scale = 32.0  // 32x original size
+                    balls[i].color = .yellow  // All turn yellow
                 }
                 scene = 25
             }
             
         case 25: // More applause - final form
             withAnimation(.spring()) {
-                for i in 0..<balls.count {
-                    balls[i].scale = balls[i].scale * 5.0
-                    balls[i].color = .yellow
-                }
-                // Add one white ball in the center
-                let centerPosition = CGPoint(
-                    x: UIScreen.main.bounds.width/2,
-                    y: UIScreen.main.bounds.height/2
-                )
-                balls.append(Ball(position: centerPosition, color: .white, scale: 0.5))
+                createFinalScene()  // Use the final scene function directly
                 scene = 26
             }
             
@@ -727,20 +718,17 @@ struct ContentView: View {
     }
     
     private func createFinalScene() {
-        withAnimation(.spring()) {
-            let centerX = UIScreen.main.bounds.width/2
-            let centerY = UIScreen.main.bounds.height/2
-            
-            balls = [
-                Ball(position: CGPoint(x: centerX, y: centerY),
-                     color: .yellow,
-                     scale: 5.0),
-                Ball(position: CGPoint(x: centerX, y: centerY),
-                     color: .white,
-                     scale: 0.5)
-            ]
-            scene = 27
-        }
+        let centerX = UIScreen.main.bounds.width/2
+        let centerY = UIScreen.main.bounds.height/2
+        
+        balls = [
+            Ball(position: CGPoint(x: centerX, y: centerY),
+                 color: .yellow,
+                 scale: 50.0),  // Make the yellow ball massive
+            Ball(position: CGPoint(x: centerX, y: centerY),
+                 color: .white,
+                 scale: 2.0)    // Make white ball more visible
+        ]
     }
     
     private func moveAllBallsUp(amount: CGFloat) {
