@@ -26,8 +26,7 @@ enum BallAlignment {
 struct ContentView: View {
     @State private var scene = 1
     @State private var balls: [Ball] = [
-        Ball(position: CGPoint(x: UIScreen.main.bounds.width/3, 
-             y: UIScreen.main.bounds.height/2))
+        Ball(position: CGPoint(x: 100, y: 400))
     ]
     @State private var lastRubbedBallId: UUID?
     @State private var pressCount: Int = 0
@@ -35,161 +34,80 @@ struct ContentView: View {
     @State private var changedBallPositions: Set<UUID> = []
     @State private var wrongBallsPressed: Set<UUID> = []
     @State private var hasCompletedOnce = false
-    @State private var clapCount: Int = 0
-    @State private var deviceOrientation: UIDeviceOrientation = .unknown
+    @State private var screenSize: CGSize = .zero
     @StateObject private var motionManager = BallMotionManager()
     @StateObject private var microphoneMonitor = MicrophoneMonitor()
     @State private var scene13Configuration: [Ball] = []
-    
+
     var instructionText: String {
         switch scene {
-        case 1:
-            return "Press the yellow ball"
-        case 2:
-            return "Press the yellow ball again"
-        case 3:
-            return "Gently rub your finger over the yellow ball"
-        case 4:
-            return "Now gently rub your finger over another yellow ball"
-        case 5:
-            return "Now press 5 times the yellow ball"
-        case 6:
-            return "Now press 5 times the red ball"
-        case 7:
-            return "Now press 5 times the blue ball"
-        case 8:
-            return "Now shake the phone a bit"
-        case 9:
-            return "Now shake it even more"
-        case 10:
-            return "Try to tilt the phone to the left side"
-        case 11:
-            return "Try to tilt the phone to the right side"
-        case 12:
-            return "Shake the phone to distribute them again"
-        case 13:
-            return "Press on all yellow balls"
-        case 14:
-            return "Funny, turn it on the lights again and by pressing on all yellow balls again"
-        case 15:
-            return "Two balls are not in the right position. Do you know which?"
-        case 16:
-            return "Shake it again"
-        case 17:
-            return "Blow a bit"
-        case 18:
-            return "Blow a bit stronger"
-        case 19:
-            return "Hold the phone upright so the balls can sink again"
-        case 20:
-            return "Clap in your hands"
-        case 21:
-            return "Blow a bit"
-        case 22:
-            return "Clap twice"
-        case 23:
-            return "Clap three times"
-        case 24:
-            return "Clap again"
-        case 25:
-            return "Applause"
-        case 26:
-            return "More applause"
-        case 27:
-            return "Oh no. Too much. Press the white ball"
-        case 28:
-            return "Congratulations! Press the yellow ball to start over"
-        default:
-            return ""
+        case 1:  return "Press the yellow ball"
+        case 2:  return "Press the yellow ball again"
+        case 3:  return "Gently rub your finger over the yellow ball"
+        case 4:  return "Now gently rub your finger over another yellow ball"
+        case 5:  return "Now press 5 times the yellow ball"
+        case 6:  return "Now press 5 times the red ball"
+        case 7:  return "Now press 5 times the blue ball"
+        case 8:  return "Now shake the phone a bit"
+        case 9:  return "Now shake it even more"
+        case 10: return "Try to tilt the phone to the left side"
+        case 11: return "Try to tilt the phone to the right side"
+        case 12: return "Shake the phone to distribute them again"
+        case 13: return "Press on all yellow balls"
+        case 14: return "Funny, turn it on the lights again and by pressing on all yellow balls again"
+        case 15: return "Two balls are not in the right position. Do you know which?"
+        case 16: return "Shake it again"
+        case 17: return "Blow a bit"
+        case 18: return "Blow a bit stronger"
+        case 19: return "Hold the phone upright so the balls can sink again"
+        case 20: return "Clap in your hands"
+        case 21: return "Blow a bit"
+        case 22: return "Clap twice"
+        case 23: return "Clap three times"
+        case 24: return "Clap again"
+        case 25: return "Applause"
+        case 26: return "More applause"
+        case 27: return "Oh no. Too much. Press the white ball"
+        case 28: return "Congratulations! Press the yellow ball to start over"
+        default: return ""
         }
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 backgroundColor.ignoresSafeArea()
-                
+
                 VStack {
-                    // ONLY instruction text - NO scene selection!
                     Text(instructionText)
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(backgroundColor == .black ? .white : .black)
                         .padding()
                         .multilineTextAlignment(.center)
-                    
+
                     if scene >= 5 && scene <= 7 {
                         Text("Pressed: \(pressCount)/5")
                             .font(.system(size: 20))
                             .foregroundColor(.gray)
                     }
-                    
+
                     Spacer()
-                    
+
                     #if DEBUG
-                    // ALL debug controls including clap
                     HStack {
-                        Button(action: {
-                            motionManager.simulateShake()
-                        }) {
-                            Text("Shake")
-                                .padding(8)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                        }
-                        Button(action: {
-                            handleTilt(direction: .left)
-                        }) {
-                            Text("Tilt Left")
-                                .padding(8)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                        }
-                        Button(action: {
-                            handleTilt(direction: .right)
-                        }) {
-                            Text("Tilt Right")
-                                .padding(8)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                        }
-                        Button(action: {
-                            handleBlow()
-                        }) {
-                            Text("Blow")
-                                .padding(8)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                        }
-                        Button(action: {
-                            deviceOrientation = .portrait
-                            handleDeviceOrientation()
-                        }) {
-                            Text("Hold Upright")
-                                .padding(8)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                        }
-                        Button(action: {
-                            handleClap()
-                        }) {
-                            Text("Clap")
-                                .padding(8)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                        }
+                        debugButton("Shake") { motionManager.simulateShake() }
+                        debugButton("Tilt Left") { handleTilt(direction: .left) }
+                        debugButton("Tilt Right") { handleTilt(direction: .right) }
+                        debugButton("Blow") { handleBlow() }
+                        debugButton("Upright") { handleDeviceUpright() }
+                        debugButton("Clap") { handleClap() }
                     }
                     #endif
                 }
-                
+
                 ForEach(balls) { ball in
                     BallView(
-                        ball: ball, 
+                        ball: ball,
                         scene: scene,
                         onTap: { handleTap(ballId: ball.id) },
                         onRub: { handleRub(ballId: ball.id) }
@@ -197,31 +115,21 @@ struct ContentView: View {
                 }
             }
             .onAppear {
-                if let firstBall = balls.first {
-                    balls[0].position = CGPoint(
-                        x: geometry.size.width/3,
-                        y: geometry.size.height/2
-                    )
-                }
+                screenSize = geometry.size
+                balls[0].position = CGPoint(
+                    x: geometry.size.width / 3,
+                    y: geometry.size.height / 2
+                )
                 motionManager.startMotionUpdates()
                 microphoneMonitor.startMonitoring()
-                
-                UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-                NotificationCenter.default.addObserver(
-                    forName: UIDevice.orientationDidChangeNotification,
-                    object: nil,
-                    queue: .main
-                ) { _ in
-                    deviceOrientation = UIDevice.current.orientation
-                    handleDeviceOrientation()
-                }
             }
             .onDisappear {
                 motionManager.stopMotionUpdates()
                 microphoneMonitor.stopMonitoring()
-                NotificationCenter.default.removeObserver(self)
-                UIDevice.current.endGeneratingDeviceOrientationNotifications()
                 resetGame()
+            }
+            .onChange(of: geometry.size) { _, newSize in
+                screenSize = newSize
             }
             .onChange(of: motionManager.shakeCount) { _, _ in
                 handleShake()
@@ -230,49 +138,45 @@ struct ContentView: View {
                 handleTilt(direction: newDirection)
             }
             .onChange(of: microphoneMonitor.blowDetected) { _, detected in
-                if detected {
-                    handleBlow()
-                }
+                if detected { handleBlow() }
+            }
+            .onChange(of: microphoneMonitor.clapDetected) { _, detected in
+                if detected { handleClap() }
+            }
+            .onChange(of: motionManager.isUpright) { _, upright in
+                if upright { handleDeviceUpright() }
             }
             .onChange(of: scene) { _, newScene in
                 if newScene == 14 {
                     withAnimation(.easeInOut(duration: 0.5)) {
                         backgroundColor = .black
-                        balls.forEach { ball in
-                            if let idx = balls.firstIndex(where: { $0.id == ball.id }) {
-                                balls[idx].isActive = ball.color == .yellow
-                            }
+                        for i in balls.indices {
+                            balls[i].isActive = balls[i].color == .yellow
                         }
                     }
                 }
             }
-            .onChange(of: microphoneMonitor.clapDetected) { _, detected in
-                if detected {
-                    handleClap()
-                }
-            }
         }
     }
-    
-    private func setupInitialScene(geometry: GeometryProxy) {
-        balls = []
-        for _ in 0..<15 {
-            balls.append(Ball(position: randomPosition(), color: .yellow))
-        }
-        arrangeInGrid()
-        
-        backgroundColor = .black
-        balls.forEach { ball in
-            if let idx = balls.firstIndex(where: { $0.id == ball.id }) {
-                balls[idx].isActive = ball.color == .yellow
-            }
+
+    #if DEBUG
+    private func debugButton(_ title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .padding(8)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(8)
         }
     }
-    
+    #endif
+
+    // MARK: - Tap Handling
+
     private func handleTap(ballId: UUID) {
         guard let index = balls.firstIndex(where: { $0.id == ballId }) else { return }
         let ball = balls[index]
-        
+
         switch scene {
         case 1, 2:
             if ball.color == .yellow && ball.isActive {
@@ -286,216 +190,176 @@ struct ContentView: View {
                     scene += 1
                 }
             }
-            
-        case 3, 4: // Rubbing scenes handled separately
-            break
-            
-        case 5...7: // Press 5 times scenes
+
+        case 5...7:
             handleFivePressScene(ball: ball, index: index)
-            
-        case 13: // Store complete grid configuration
+
+        case 13:
             if ball.color == .yellow && ball.isActive {
                 withAnimation {
                     balls[index].isActive = false
                     if !balls.contains(where: { $0.color == .yellow && $0.isActive }) {
-                        // Store the COMPLETE configuration before moving to scene 14
-                        scene13Configuration = balls.map { ball in
-                            Ball(position: ball.position,
-                                 color: ball.color,
-                                 pressCount: ball.pressCount,
-                                 isActive: true,
-                                 alignment: ball.alignment,
-                                 scale: ball.scale)
+                        scene13Configuration = balls.map { b in
+                            Ball(position: b.position, color: b.color,
+                                 pressCount: b.pressCount, isActive: true,
+                                 alignment: b.alignment, scale: b.scale)
                         }
-                        // For scene 14, hide non-yellow balls
-                        withAnimation {
-                            balls.indices.forEach { i in
-                                balls[i].isActive = balls[i].color == .yellow
-                            }
-                            backgroundColor = .black
-                            scene = 14
+                        for i in balls.indices {
+                            balls[i].isActive = balls[i].color == .yellow
                         }
+                        backgroundColor = .black
+                        scene = 14
                     }
                 }
             }
-            
-        case 14: // Turn lights on again
+
+        case 14:
             if ball.color == .yellow && ball.isActive {
                 withAnimation {
                     balls[index].isActive = false
                     if !balls.contains(where: { $0.color == .yellow && $0.isActive }) {
-                        // Restore scene 13 configuration and prepare for scene 15
                         backgroundColor = .white
                         prepareChangedBallsForScene15()
                         scene = 15
                     }
                 }
             }
-            
-        case 15: // Find changed balls
+
+        case 15:
             if changedBallPositions.contains(ballId) {
                 withAnimation {
                     wrongBallsPressed.insert(ballId)
                     if wrongBallsPressed == changedBallPositions {
-                        // Restore original scene 13 configuration but with black background
-                        balls = scene13Configuration.map { ball in
-                            Ball(position: ball.position,
-                                 color: ball.color,
-                                 pressCount: ball.pressCount,
-                                 isActive: true,
-                                 alignment: ball.alignment,
-                                 scale: ball.scale)
+                        balls = scene13Configuration.map { b in
+                            Ball(position: b.position, color: b.color,
+                                 pressCount: b.pressCount, isActive: true,
+                                 alignment: b.alignment, scale: b.scale)
                         }
                         backgroundColor = .black
                         scene = 16
                     }
                 }
             }
-            
-        case 27: // Press white ball to restart
+
+        case 27:
             if ball.color == .white {
                 withAnimation {
                     scene = 28
                     hasCompletedOnce = true
                 }
             }
-            
-        case 28: // Start over
+
+        case 28:
             if ball.color == .yellow {
                 withAnimation {
                     scene = 1
                     resetGame()
                 }
             }
-            
+
         default:
             break
         }
     }
-    
+
+    // MARK: - Rub Handling
+
     private func handleRub(ballId: UUID) {
         guard scene == 3 || scene == 4 else { return }
         guard let index = balls.firstIndex(where: { $0.id == ballId }) else { return }
-        guard balls[index].isActive else { return }
-        
+        guard balls[index].isActive && balls[index].color == .yellow else { return }
+
         if scene == 3 {
-            if balls[index].color == .yellow {
-                withAnimation {
-                    balls[index].color = .red
-                    lastRubbedBallId = ballId
-                    scene = 4
-                }
+            withAnimation {
+                balls[index].color = .red
+                lastRubbedBallId = ballId
+                scene = 4
             }
         } else if scene == 4 && ballId != lastRubbedBallId {
-            if balls[index].color == .yellow {
-                withAnimation {
-                    balls[index].color = .blue
-                    scene = 5
-                }
+            withAnimation {
+                balls[index].color = .blue
+                scene = 5
             }
         }
     }
-    
+
+    // MARK: - Five Press Scene
+
     private func handleFivePressScene(ball: Ball, index: Int) {
-        if ball.isActive {
-            let correctColor: Color
-            let nextScene: Int
-            
-            switch scene {
-            case 5:
-                correctColor = .yellow
-                nextScene = 6
-            case 6:
-                correctColor = .red
-                nextScene = 7
-            case 7:
-                correctColor = .blue
-                nextScene = 8
-            default:
-                return
-            }
-            
-            if ball.color == correctColor {
-                withAnimation {
-                    pressCount += 1
-                    if pressCount == 5 {
-                        createFiveBalls(fromBallId: ball.id, color: correctColor, alignment: .vertical)
-                        scene = nextScene
-                        pressCount = 0
-                    }
+        guard ball.isActive else { return }
+
+        let correctColor: Color
+        let nextScene: Int
+
+        switch scene {
+        case 5: correctColor = .yellow; nextScene = 6
+        case 6: correctColor = .red;    nextScene = 7
+        case 7: correctColor = .blue;   nextScene = 8
+        default: return
+        }
+
+        if ball.color == correctColor {
+            withAnimation {
+                pressCount += 1
+                if pressCount == 5 {
+                    createFiveBalls(fromBallId: ball.id, color: correctColor, alignment: .vertical)
+                    scene = nextScene
+                    pressCount = 0
                 }
             }
         }
     }
-    
+
     private func createFiveBalls(fromBallId: UUID, color: Color, alignment: BallAlignment) {
         guard let index = balls.firstIndex(where: { $0.id == fromBallId }) else { return }
-        let originalBall = balls[index]
-        
+        let origin = balls[index].position
         let spacing: CGFloat = 70
-        var newBalls: [Ball] = []
-        
-        for i in 0..<5 {
-            let newPosition: CGPoint
-            if alignment == .vertical {
-                newPosition = CGPoint(
-                    x: originalBall.position.x,
-                    y: originalBall.position.y - spacing * 2 + spacing * CGFloat(i)
-                )
-            } else {
-                newPosition = CGPoint(
-                    x: originalBall.position.x - spacing * 2 + spacing * CGFloat(i),
-                    y: originalBall.position.y
-                )
-            }
-            
-            newBalls.append(Ball(
-                position: newPosition,
-                color: color,
-                alignment: alignment
-            ))
-        }
-        
+
         balls.remove(at: index)
-        balls.append(contentsOf: newBalls)
+        for i in 0..<5 {
+            let position: CGPoint
+            if alignment == .vertical {
+                position = CGPoint(x: origin.x, y: origin.y - spacing * 2 + spacing * CGFloat(i))
+            } else {
+                position = CGPoint(x: origin.x - spacing * 2 + spacing * CGFloat(i), y: origin.y)
+            }
+            balls.append(Ball(position: position, color: color, alignment: alignment))
+        }
     }
-    
+
+    // MARK: - Shake Handling
+
     private func handleShake() {
         switch scene {
-        case 8: // Slight misalignment
+        case 8:
             withAnimation(.spring()) {
-                for i in 0..<balls.count {
-                    let randomOffset = CGPoint(
-                        x: CGFloat.random(in: -20...20),
-                        y: CGFloat.random(in: -20...20)
-                    )
-                    balls[i].position.x += randomOffset.x
-                    balls[i].position.y += randomOffset.y
+                for i in balls.indices {
+                    balls[i].position.x += CGFloat.random(in: -20...20)
+                    balls[i].position.y += CGFloat.random(in: -20...20)
                 }
                 scene = 9
             }
-            
-        case 9: // Wild distribution
+
+        case 9:
             withAnimation(.spring()) {
-                for i in 0..<balls.count {
+                for i in balls.indices {
                     balls[i].position = randomPosition()
                 }
                 scene = 10
             }
-            
-        case 12: // Grid arrangement
+
+        case 12:
             withAnimation(.spring()) {
                 arrangeInGrid()
                 scene = 13
             }
-            
-        case 16: // Restore grid then transition to circle
+
+        case 16:
             withAnimation(.spring()) {
                 arrangeInGrid()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     withAnimation(.spring()) {
-                        // Randomly mix colors before arranging in circle
-                        balls.indices.forEach { i in
+                        for i in balls.indices {
                             if CGFloat.random(in: 0...1) > 0.5 {
                                 balls[i].color = [Color.yellow, .red, .blue].randomElement() ?? .yellow
                             }
@@ -505,405 +369,266 @@ struct ContentView: View {
                     }
                 }
             }
-            
-        case 1...7, 10, 11, 13...15, 17...27:  // Add all other possible scenes
-            break
-            
-        default:  // Handle any future cases
+
+        default:
             break
         }
     }
-    
+
+    // MARK: - Blow Handling
+
     private func handleBlow() {
         switch scene {
-        case 17: // First gentle blow - random distribution upward
+        case 17:
             withAnimation(.spring()) {
-                for i in 0..<balls.count {
-                    // Random upward movement with some horizontal scatter
-                    let randomHorizontalOffset = CGFloat.random(in: -50...50)
-                    balls[i].position.y -= 50 // Move up
-                    balls[i].position.x += randomHorizontalOffset
+                for i in balls.indices {
+                    balls[i].position.y -= 50
+                    balls[i].position.x += CGFloat.random(in: -50...50)
                 }
-                fadeBackground(amount: 0.3)
                 scene = 18
             }
-            
-        case 18: // Stronger blow - balls almost out of sight
+
+        case 18:
             withAnimation(.spring()) {
-                for i in 0..<balls.count {
-                    // More dramatic upward movement with wider scatter
-                    let randomHorizontalOffset = CGFloat.random(in: -100...100)
-                    // Move most balls almost out of sight, with some variation
-                    let randomUpwardOffset = UIScreen.main.bounds.height * CGFloat.random(in: 0.6...0.9)
-                    balls[i].position.y -= randomUpwardOffset
-                    balls[i].position.x += randomHorizontalOffset
+                for i in balls.indices {
+                    balls[i].position.y -= screenSize.height * CGFloat.random(in: 0.6...0.9)
+                    balls[i].position.x += CGFloat.random(in: -100...100)
                 }
-                fadeBackground(amount: 0.8)
                 scene = 19
             }
-            
-        case 21: // Final blow
+
+        case 21:
             withAnimation(.spring()) {
-                for i in 0..<balls.count {
+                for i in balls.indices {
                     balls[i].scale *= 1.2
                 }
                 scene = 22
             }
-            
+
         default:
             break
         }
     }
-    
+
+    // MARK: - Clap Handling
+
     private func handleClap() {
         switch scene {
-        case 20: // First clap - just make them bigger
+        case 20:
             withAnimation(.spring()) {
-                for i in 0..<balls.count {
-                    balls[i].scale = 2.0  // Start with double size
+                for i in balls.indices {
+                    balls[i].scale = 2.0
                 }
                 scene = 21
             }
-            
-        case 21: // Second clap - even bigger
+
+        case 22:
             withAnimation(.spring()) {
-                for i in 0..<balls.count {
-                    balls[i].scale = 4.0  // 4x original size
-                    // Add slight random movement for overlap effect
-                    let randomOffset = CGPoint(
-                        x: CGFloat.random(in: -30...30),
-                        y: CGFloat.random(in: -30...30)
-                    )
-                    balls[i].position.x += randomOffset.x
-                    balls[i].position.y += randomOffset.y
-                }
-                scene = 22
-            }
-            
-        case 22: // Third clap - much bigger
-            withAnimation(.spring()) {
-                for i in 0..<balls.count {
-                    balls[i].scale = 8.0  // 8x original size
-                    // More dramatic overlap
-                    let randomOffset = CGPoint(
-                        x: CGFloat.random(in: -50...50),
-                        y: CGFloat.random(in: -50...50)
-                    )
-                    balls[i].position.x += randomOffset.x
-                    balls[i].position.y += randomOffset.y
+                for i in balls.indices {
+                    balls[i].scale = 8.0
+                    balls[i].position.x += CGFloat.random(in: -50...50)
+                    balls[i].position.y += CGFloat.random(in: -50...50)
                 }
                 scene = 23
             }
-            
-        case 23: // Fourth clap - huge
+
+        case 23:
             withAnimation(.spring()) {
-                for i in 0..<balls.count {
-                    balls[i].scale = 16.0  // 16x original size
-                    // Even more overlap
-                    let randomOffset = CGPoint(
-                        x: CGFloat.random(in: -70...70),
-                        y: CGFloat.random(in: -70...70)
-                    )
-                    balls[i].position.x += randomOffset.x
-                    balls[i].position.y += randomOffset.y
+                for i in balls.indices {
+                    balls[i].scale = 16.0
+                    balls[i].position.x += CGFloat.random(in: -70...70)
+                    balls[i].position.y += CGFloat.random(in: -70...70)
                 }
                 scene = 24
             }
-            
-        case 24: // Applause - massive
+
+        case 24:
             withAnimation(.spring()) {
-                for i in 0..<balls.count {
-                    balls[i].scale = 32.0  // 32x original size
-                    balls[i].color = .yellow  // All turn yellow
+                for i in balls.indices {
+                    balls[i].scale = 32.0
+                    balls[i].color = .yellow
                 }
                 scene = 25
             }
-            
-        case 25: // More applause - final form
+
+        case 25:
             withAnimation(.spring()) {
-                createFinalScene()  // Use the final scene function directly
+                createFinalScene()
                 scene = 26
             }
-            
+
+        case 26:
+            withAnimation(.spring()) {
+                scene = 27
+            }
+
         default:
             break
         }
     }
-    
-    private func handleDeviceOrientation() {
-        if scene == 19 && deviceOrientation == .portrait {
-            withAnimation(.spring(response: 0.8, dampingFraction: 0.6)) {
-                // Let balls sink down with gravity-like effect
-                for i in 0..<balls.count {
-                    let randomDelay = Double.random(in: 0...0.5)
-                    let randomX = CGFloat.random(in: 50...(UIScreen.main.bounds.width - 50))
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + randomDelay) {
-                        withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
-                            // Start from current position and "sink" to random position
-                            balls[i].position = CGPoint(
-                                x: randomX,
-                                y: CGFloat.random(in: UIScreen.main.bounds.height * 0.4...UIScreen.main.bounds.height * 0.8)
-                            )
-                        }
+
+    // MARK: - Orientation Handling
+
+    private func handleDeviceUpright() {
+        guard scene == 19 else { return }
+
+        withAnimation(.spring(response: 0.8, dampingFraction: 0.6)) {
+            for i in balls.indices {
+                let delay = Double.random(in: 0...0.5)
+                let targetX = CGFloat.random(in: 50...(screenSize.width - 50))
+                let targetY = CGFloat.random(in: screenSize.height * 0.4...screenSize.height * 0.8)
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+                        guard i < balls.count else { return }
+                        balls[i].position = CGPoint(x: targetX, y: targetY)
                     }
                 }
-                
-                // Give time for balls to settle before moving to next scene
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    scene = 20
-                }
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                scene = 20
             }
         }
     }
-    
+
+    // MARK: - Tilt Handling
+
     private func handleTilt(direction: TiltDirection) {
         switch scene {
-        case 10:
-            if direction == .left {
-                moveBallsToSide(direction)
-                scene = 11
-            }
-        case 11:
-            if direction == .right {
-                moveBallsToSide(direction)
-                scene = 12
-            }
+        case 10 where direction == .left:
+            moveBallsToSide(.left)
+            scene = 11
+        case 11 where direction == .right:
+            moveBallsToSide(.right)
+            scene = 12
         default:
             break
         }
     }
-    
+
     private func moveBallsToSide(_ side: TiltDirection) {
         withAnimation(.spring()) {
-            for i in 0..<balls.count {
+            for i in balls.indices {
                 switch side {
                 case .left:
                     balls[i].position.x = 50 + CGFloat.random(in: 0...50)
                 case .right:
-                    balls[i].position.x = UIScreen.main.bounds.width - 100 + CGFloat.random(in: 0...50)
+                    balls[i].position.x = screenSize.width - 100 + CGFloat.random(in: 0...50)
                 case .none:
-                    break  // Add this case to handle .none
+                    break
                 }
             }
         }
     }
-    
+
+    // MARK: - Helpers
+
     private func randomPosition() -> CGPoint {
         CGPoint(
-            x: CGFloat.random(in: 50...(UIScreen.main.bounds.width - 50)),
-            y: CGFloat.random(in: 100...(UIScreen.main.bounds.height - 100))
+            x: CGFloat.random(in: 50...(screenSize.width - 50)),
+            y: CGFloat.random(in: 100...(screenSize.height - 100))
         )
     }
-    
+
     private func resetGame() {
         withAnimation {
-            balls = [Ball(position: CGPoint(x: UIScreen.main.bounds.width/3, 
-                                          y: UIScreen.main.bounds.height/2))]
+            balls = [Ball(position: CGPoint(x: screenSize.width / 3, y: screenSize.height / 2))]
             backgroundColor = .white
             pressCount = 0
             changedBallPositions.removeAll()
             wrongBallsPressed.removeAll()
-            clapCount = 0
             lastRubbedBallId = nil
             hasCompletedOnce = false
-            balls.forEach { ball in
-                if let idx = balls.firstIndex(where: { $0.id == ball.id }) {
-                    balls[idx].scale = 1.0
-                    balls[idx].isActive = true
-                    balls[idx].color = .yellow
-                }
-            }
         }
     }
-    
+
     private func createFinalScene() {
-        let centerX = UIScreen.main.bounds.width/2
-        let centerY = UIScreen.main.bounds.height/2
-        
+        let center = CGPoint(x: screenSize.width / 2, y: screenSize.height / 2)
         balls = [
-            Ball(position: CGPoint(x: centerX, y: centerY),
-                 color: .yellow,
-                 scale: 50.0),  // Make the yellow ball massive
-            Ball(position: CGPoint(x: centerX, y: centerY),
-                 color: .white,
-                 scale: 2.0)    // Make white ball more visible
+            Ball(position: center, color: .yellow, scale: 50.0),
+            Ball(position: center, color: .white, scale: 2.0)
         ]
     }
-    
-    private func moveAllBallsUp(amount: CGFloat) {
-        withAnimation(.spring()) {
-            for i in 0..<balls.count {
-                balls[i].position.y -= amount
-            }
-        }
-    }
-    
-    private func fadeBackground(amount: Double) {
-        withAnimation(.easeInOut) {
-            backgroundColor = backgroundColor == .black ? 
-                .black.opacity(1 - amount) : 
-                .white.opacity(1 - amount)
-        }
-    }
-    
+
     private func arrangeInGrid() {
-        let screenWidth = UIScreen.main.bounds.width
-        let screenHeight = UIScreen.main.bounds.height
-        
         let columns = 5
         let rows = 3
         let spacing: CGFloat = 70
-        
-        let startX = (screenWidth - (CGFloat(columns - 1) * spacing)) / 2
-        let startY = (screenHeight - (CGFloat(rows - 1) * spacing)) / 2
-        
+
+        let startX = (screenSize.width - CGFloat(columns - 1) * spacing) / 2
+        let startY = (screenSize.height - CGFloat(rows - 1) * spacing) / 2
+
         var positions: [CGPoint] = []
         for row in 0..<rows {
             for col in 0..<columns {
-                let x = startX + CGFloat(col) * spacing
-                let y = startY + CGFloat(row) * spacing
-                positions.append(CGPoint(x: x, y: y))
+                positions.append(CGPoint(
+                    x: startX + CGFloat(col) * spacing,
+                    y: startY + CGFloat(row) * spacing
+                ))
             }
         }
-        
         positions.shuffle()
-        
+
         withAnimation(.spring()) {
-            for (index, ball) in balls.enumerated() {
-                if index < positions.count {
-                    if let ballIndex = balls.firstIndex(where: { $0.id == ball.id }) {
-                        balls[ballIndex].position = positions[index]
-                    }
-                }
+            for i in balls.indices where i < positions.count {
+                balls[i].position = positions[i]
             }
         }
     }
-    
+
     private func arrangeInCircle() {
-        let centerX = UIScreen.main.bounds.width/2
-        let centerY = UIScreen.main.bounds.height/2
-        let radius = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)/3
-        
+        let center = CGPoint(x: screenSize.width / 2, y: screenSize.height / 2)
+        let radius = min(screenSize.width, screenSize.height) / 3
+
         withAnimation(.spring()) {
-            for (index, ball) in balls.enumerated() {
-                let angle = (2.0 * .pi * Double(index)) / Double(balls.count)
-                let x = centerX + radius * cos(angle)
-                let y = centerY + radius * sin(angle)
-                
-                if let ballIndex = balls.firstIndex(where: { $0.id == ball.id }) {
-                    balls[ballIndex].position = CGPoint(x: x, y: y)
-                }
-            }
-        }
-    }
-    
-    private func prepareChangedBallsForScene15() {
-        // First restore the exact scene 13 configuration
-        balls = scene13Configuration.map { ball in
-            Ball(position: ball.position,
-                 color: ball.color,
-                 pressCount: ball.pressCount,
-                 isActive: true,
-                 alignment: ball.alignment,
-                 scale: ball.scale)
-        }
-        
-        // Find two balls of different colors to exchange
-        let ballsByColor = Dictionary(grouping: balls.enumerated(), by: { $0.element.color })
-        guard let yellowBalls = ballsByColor[.yellow]?.shuffled(),
-              let nonYellowBalls = (ballsByColor[.red] ?? ballsByColor[.blue])?.shuffled(),
-              let ball1 = yellowBalls.first,
-              let ball2 = nonYellowBalls.first else { return }
-        
-        let index1 = ball1.offset
-        let index2 = ball2.offset
-        
-        changedBallPositions = Set([balls[index1].id, balls[index2].id])
-        
-        withAnimation(.spring()) {
-            let tempPosition = balls[index1].position
-            balls[index1].position = balls[index2].position
-            balls[index2].position = tempPosition
-        }
-        wrongBallsPressed.removeAll()
-    }
-    
-    private func setupScene(_ targetScene: Int) {
-        guard targetScene >= 1 && targetScene <= 27 else { return }
-        // Reset game state
-        balls = [Ball(position: CGPoint(x: UIScreen.main.bounds.width/3, 
-                                      y: UIScreen.main.bounds.height/2))]
-        backgroundColor = .white
-        pressCount = 0
-        changedBallPositions.removeAll()
-        wrongBallsPressed.removeAll()
-        
-        // Play through scenes
-        for sceneNum in 1...targetScene {
-            switch sceneNum {
-            case 2:
-                // Add second ball
-                let spacing: CGFloat = 100
-                let newPosition = CGPoint(
-                    x: (balls.last?.position.x ?? 0) + spacing,
-                    y: balls[0].position.y
+            for i in balls.indices {
+                let angle = (2.0 * .pi * Double(i)) / Double(balls.count)
+                balls[i].position = CGPoint(
+                    x: center.x + radius * cos(angle),
+                    y: center.y + radius * sin(angle)
                 )
-                balls.append(Ball(position: newPosition))
-                
-            case 5...7:
-                // Setup colored balls
-                if sceneNum == 5 {
-                    balls[0].color = .yellow
-                } else if sceneNum == 6 {
-                    balls[0].color = .red
-                } else {
-                    balls[0].color = .blue
-                }
-                
-            case 8...12:
-                // Setup multiple balls for shake/tilt scenes
-                if balls.count < 15 {
-                    for _ in 0..<15 {
-                        balls.append(Ball(position: randomPosition()))
-                    }
-                }
-                
-            case 13:
-                // Setup colored balls grid
-                balls = []
-                for _ in 0..<15 {
-                    balls.append(Ball(position: randomPosition(), color: .yellow))
-                }
-                arrangeInGrid()
-                
-            case 14:
-                backgroundColor = .black
-                balls.forEach { ball in
-                    if let idx = balls.firstIndex(where: { $0.id == ball.id }) {
-                        balls[idx].isActive = ball.color == .yellow
-                    }
-                }
-                
-            default:
-                break  // No special setup needed for other scenes
             }
         }
-        
-        scene = targetScene
+    }
+
+    private func prepareChangedBallsForScene15() {
+        balls = scene13Configuration.map { b in
+            Ball(position: b.position, color: b.color,
+                 pressCount: b.pressCount, isActive: true,
+                 alignment: b.alignment, scale: b.scale)
+        }
+
+        let ballsByColor = Dictionary(grouping: balls.indices, by: { balls[$0].color })
+        guard let yellowIndices = ballsByColor[.yellow]?.shuffled(),
+              let nonYellowIndices = (ballsByColor[.red] ?? ballsByColor[.blue])?.shuffled(),
+              let i1 = yellowIndices.first,
+              let i2 = nonYellowIndices.first else { return }
+
+        changedBallPositions = [balls[i1].id, balls[i2].id]
+
+        withAnimation(.spring()) {
+            let temp = balls[i1].position
+            balls[i1].position = balls[i2].position
+            balls[i2].position = temp
+        }
+        wrongBallsPressed.removeAll()
     }
 }
+
+// MARK: - Ball View
 
 struct BallView: View {
     let ball: Ball
     let scene: Int
     let onTap: () -> Void
     let onRub: () -> Void
-    
+
     var body: some View {
         Circle()
             .fill(ball.color)
             .frame(width: 60, height: 60)
+            .scaleEffect(ball.scale)
             .position(ball.position)
             .opacity(ball.isActive ? 1 : 0)
             .onTapGesture(perform: onTap)
